@@ -22,6 +22,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,  // 자판 올라오지 않기
       body: SafeArea(
         child: Stack(
           children: [
@@ -33,9 +34,11 @@ class _AuthScreenState extends State<AuthScreen> {
               left: 0,
               right: 0,
               bottom: 0,
+              height: 40,
               child: Container(
                 color: Colors.white,
                 child: FlatButton(
+                  shape: Border(top: BorderSide(color: Colors.grey)),
                   onPressed: () {
                     setState(() {
                       if (currentWidget is SignUpForm) {
@@ -47,11 +50,15 @@ class _AuthScreenState extends State<AuthScreen> {
                   },
                   child: RichText(
                       text: TextSpan(
-                          text: (currentWidget is SignUpForm) ? "Alreay have an account? " : "Don't have an account? ",
+                          text: (currentWidget is SignUpForm)
+                              ? "Alreay have an account? "
+                              : "Don't have an account? ",
                           style: TextStyle(color: Colors.grey),
                           children: [
                         TextSpan(
-                            text: "sdfs",
+                            text: (currentWidget is SignUpForm)
+                                ? "Sign In"
+                                : "Sign Up",
                             style: TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
