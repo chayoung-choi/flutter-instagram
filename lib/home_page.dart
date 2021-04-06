@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:instagram/screens/camera_screen.dart';
 import 'package:instagram/screens/feed_screen.dart';
 import 'package:instagram/screens/profile_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'constants/screen_size.dart';
 
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int _selectedIndex = 0;
+  GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   List<Widget> _screens = <Widget>[
     FeedScreen(),
@@ -44,6 +46,7 @@ class _HomePageState extends State<HomePage> {
     if (size == null) size = MediaQuery.of(context).size; // device size
 
     return Scaffold(
+      key: _key,
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
@@ -63,8 +66,7 @@ class _HomePageState extends State<HomePage> {
   void _onBtnItemClick(int index) {
     switch (index) {
       case 2:
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => CameraScreen()));
+        _openCamera();
         break;
       default:
         print(index);
@@ -72,5 +74,37 @@ class _HomePageState extends State<HomePage> {
           _selectedIndex = index;
         });
     }
+  }
+
+  void _openCamera() async {
+    if (await checkIfPermissionGranted(context)) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => CameraScreen()));
+    } else {
+      SnackBar snackbar = SnackBar(
+        content: Text('사진, 파일, 마이크 접근 허용이 필요합니다.'),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {
+            _key.currentState.hideCurrentSnackBar();
+          },
+        ),
+      );
+      _key.currentState.showSnackBar(snackbar);
+    }
+  }
+
+  Future<bool> checkIfPermissionGranted(BuildContext context) async {
+    Map<Permission, PermissionStatus> statuses =
+        await [Permission.camera, Permission.microphone].request();
+    bool permitted = true;
+
+    statuses.forEach((permission, permissionStatus) {
+      if (!permissionStatus.isGranted) {
+        permitted = false;
+      }
+    });
+
+    return permitted;
   }
 }
