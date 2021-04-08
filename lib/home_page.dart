@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/screens/camera_screen.dart';
 import 'package:instagram/screens/feed_screen.dart';
@@ -87,6 +88,7 @@ class _HomePageState extends State<HomePage> {
           label: 'OK',
           onPressed: () {
             _key.currentState.hideCurrentSnackBar();
+            AppSettings.openLocationSettings();
           },
         ),
       );
