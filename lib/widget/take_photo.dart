@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/constants/screen_size.dart';
 import 'package:instagram/models/camera_state.dart';
+import 'package:instagram/screens/share_post_screen.dart';
 import 'package:instagram/widget/my_progress_indicator.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class TakePhoto extends StatefulWidget {
@@ -20,19 +25,24 @@ class _TakePhotoState extends State<TakePhoto> {
   @override
   Widget build(BuildContext context) {
     return Consumer<CameraState>(
-      builder: (BuildContext context, CameraState cameraState, Widget child){
+      builder: (BuildContext context, CameraState cameraState, Widget child) {
         return Column(
           children: [
             Container(
               width: size.width,
               height: size.width,
               color: Colors.black,
-              child:
-              (cameraState.isReadyToTakePhoto) ? _getPreview(cameraState) : _progress,
+              child: (cameraState.isReadyToTakePhoto)
+                  ? _getPreview(cameraState)
+                  : _progress,
             ),
             Expanded(
               child: OutlineButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (cameraState.isReadyToTakePhoto) {
+                    _attemptTakePhoto(cameraState, context);
+                  }
+                },
                 shape: CircleBorder(),
                 borderSide: BorderSide(
                   color: Colors.black12,
@@ -47,7 +57,6 @@ class _TakePhotoState extends State<TakePhoto> {
   }
 
   Widget _getPreview(CameraState cameraState) {
-
     return ClipRect(
       child: OverflowBox(
         alignment: Alignment.center,
@@ -61,5 +70,19 @@ class _TakePhotoState extends State<TakePhoto> {
         ),
       ),
     );
+  }
+
+  void _attemptTakePhoto(CameraState cameraState, BuildContext context) async {
+    final String timeInMilli = DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      final path =
+          join((await getTemporaryDirectory()).path, '$timeInMilli.png');
+
+      XFile pictureTaken = await cameraState.controller.takePicture();
+
+      File imageFile = File(pictureTaken.path);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => SharePostScreen(imageFile)));
+    } catch (e) {}
   }
 }
