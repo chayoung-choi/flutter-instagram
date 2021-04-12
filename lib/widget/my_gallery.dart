@@ -48,7 +48,7 @@ class _MyGalleryState extends State<MyGallery> {
                 } catch (e) {}
               },
               child: Image(
-                image: DeviceImage(localImage, scale: 0.1),
+                image: DeviceImage(localImage, scale: 0.2),
                 fit: BoxFit.cover,
               ),
             ))
