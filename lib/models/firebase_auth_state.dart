@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:instagram/repo/user_network_repository.dart';
 import 'package:instagram/utils/simple_snackbar.dart';
 
 class FirebaseAuthState extends ChangeNotifier {
@@ -23,12 +24,13 @@ class FirebaseAuthState extends ChangeNotifier {
   }
 
   void registerUser(BuildContext context,
-      {@required String email, @required String password}) {
+      {@required String email, @required String password}) async {
     changeFirebaseAuthStatus(FirebaseAuthStatus.progress);
-    _firebaseAuth
+    AuthResult authResult = await _firebaseAuth
         .createUserWithEmailAndPassword(
             email: email.trim(), password: password.trim())
         .catchError((error) {
+      print(error);
       String _message = "";
       switch (error.code) {
         case 'ERROR_WEAK_PASSWORD':
@@ -47,14 +49,26 @@ class FirebaseAuthState extends ChangeNotifier {
       );
       Scaffold.of(context).showSnackBar(snackBar);
     });
+
+    _firebaseUser = authResult.user;
+    if (_firebaseUser == null) {
+      SnackBar snackBar = SnackBar(
+        content: Text("Please try again later!"),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    } else {
+      await userNetworkRepository.attemptCreateUser(
+          userKey: _firebaseUser.uid, email: _firebaseUser.email);
+    }
   }
 
   void login(BuildContext context,
-      {@required String email, @required String password}) {
+      {@required String email, @required String password}) async {
     changeFirebaseAuthStatus(FirebaseAuthStatus.progress);
-    _firebaseAuth
+    AuthResult authResult = await _firebaseAuth
         .signInWithEmailAndPassword(email: email, password: password)
         .catchError((error) {
+      print(error);
       String _message = "";
       switch (error.code) {
         case 'ERROR_INVALID_EMAIL':

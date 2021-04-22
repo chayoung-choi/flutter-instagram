@@ -5,6 +5,7 @@ import 'package:instagram/widget/my_progress_indicator.dart';
 import 'package:provider/provider.dart';
 import 'constants/material_white.dart';
 import 'home_page.dart';
+import 'models/user_model_state.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,28 +21,37 @@ class MyApp extends StatelessWidget {
 
     return ChangeNotifierProvider<FirebaseAuthState>.value(
       value: _firebaseAuthState,
-      child: MaterialApp(
-        home: Consumer<FirebaseAuthState>(
-          builder: (BuildContext context, FirebaseAuthState firebaseAuthState,
-              Widget child) {
-            switch (firebaseAuthState.firebaseAuthStatus) {
-              case FirebaseAuthStatus.signout:
-                _currentWidget = AuthScreen();
-                break;
-              case FirebaseAuthStatus.signin:
-                _currentWidget = HomePage();
-                break;
-              default:
-                _currentWidget = MyProgressIndicator();
-            }
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<FirebaseAuthState>.value(
+              value: _firebaseAuthState),
+          ChangeNotifierProvider<UserModelState>(
+            create: (_) => UserModelState(),
+          ),
+        ],
+        child: MaterialApp(
+          home: Consumer<FirebaseAuthState>(
+            builder: (BuildContext context, FirebaseAuthState firebaseAuthState,
+                Widget child) {
+              switch (firebaseAuthState.firebaseAuthStatus) {
+                case FirebaseAuthStatus.signout:
+                  _currentWidget = AuthScreen();
+                  break;
+                case FirebaseAuthStatus.signin:
+                  _currentWidget = HomePage();
+                  break;
+                default:
+                  _currentWidget = MyProgressIndicator();
+              }
 
-            return AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
-              child: _currentWidget,
-            );
-          },
+              return AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: _currentWidget,
+              );
+            },
+          ),
+          theme: ThemeData(primarySwatch: white),
         ),
-        theme: ThemeData(primarySwatch: white),
       ),
     );
   }
