@@ -2,11 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/constants/common_size.dart';
 import 'package:instagram/constants/screen_size.dart';
+import 'package:instagram/models/user_model_state.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/widget/rounded_avatar.dart';
+import 'package:provider/provider.dart';
 
 class ProfileBody extends StatefulWidget {
-
   final Function() onMenuChanged;
 
   const ProfileBody({Key key, this.onMenuChanged}) : super(key: key);
@@ -27,7 +28,8 @@ class _ProfileBodyState extends State<ProfileBody>
 
   @override
   void initState() {
-    _iconAnimationController = AnimationController(vsync: this, duration: duration);
+    _iconAnimationController =
+        AnimationController(vsync: this, duration: duration);
     super.initState();
   }
 
@@ -79,7 +81,7 @@ class _ProfileBodyState extends State<ProfileBody>
                         ),
                       ],
                     ),
-                    _username(),
+                    _username(context),
                     _userBio(),
                     _editProfileBtn(),
                     _tabButtons(),
@@ -103,12 +105,14 @@ class _ProfileBodyState extends State<ProfileBody>
         ),
         Expanded(
             child: Text(
-              'The Coding Papa',
-              textAlign: TextAlign.center,
-            )),
+          'The Coding Papa',
+          textAlign: TextAlign.center,
+        )),
         IconButton(
-          icon: AnimatedIcon(icon: AnimatedIcons.menu_close,
-            progress: _iconAnimationController,),
+          icon: AnimatedIcon(
+            icon: AnimatedIcons.menu_close,
+            progress: _iconAnimationController,
+          ),
           onPressed: () {
             widget.onMenuChanged();
             _iconAnimationController.status == AnimationStatus.completed
@@ -120,8 +124,7 @@ class _ProfileBodyState extends State<ProfileBody>
     );
   }
 
-  Text _valueText(String value) =>
-      Text(
+  Text _valueText(String value) => Text(
         value,
         textAlign: TextAlign.center,
         style: TextStyle(
@@ -129,8 +132,7 @@ class _ProfileBodyState extends State<ProfileBody>
         ),
       );
 
-  Text _labelText(String label) =>
-      Text(
+  Text _labelText(String label) => Text(
         label,
         textAlign: TextAlign.center,
         style: TextStyle(
@@ -168,8 +170,7 @@ class _ProfileBodyState extends State<ProfileBody>
       childAspectRatio: 1,
       children: List.generate(
           30,
-              (index) =>
-              CachedNetworkImage(
+          (index) => CachedNetworkImage(
                 fit: BoxFit.cover,
                 imageUrl: "https://picsum.photos/id/$index/100/100",
               )),
@@ -263,11 +264,14 @@ class _ProfileBodyState extends State<ProfileBody>
     );
   }
 
-  Widget _username() {
+  Widget _username(BuildContext context) {
+    UserModelState userModelState = Provider.of<UserModelState>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: common_gap),
       child: Text(
-        'cyoung90',
+        userModelState == null || userModelState.userModel == null
+            ? ""
+            : userModelState.userModel.username,
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
     );

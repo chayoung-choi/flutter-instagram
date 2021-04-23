@@ -1,13 +1,10 @@
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/models/gallery_state.dart';
 import 'package:instagram/screens/share_post_screen.dart';
 import 'package:local_image_provider/device_image.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';

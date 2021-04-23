@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
@@ -66,7 +68,8 @@ class FirebaseAuthState extends ChangeNotifier {
       {@required String email, @required String password}) async {
     changeFirebaseAuthStatus(FirebaseAuthStatus.progress);
     AuthResult authResult = await _firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password)
+        .signInWithEmailAndPassword(
+            email: email.trim(), password: password.trim())
         .catchError((error) {
       print(error);
       String _message = "";
@@ -96,6 +99,14 @@ class FirebaseAuthState extends ChangeNotifier {
       );
       Scaffold.of(context).showSnackBar(snackBar);
     });
+
+    _firebaseUser = authResult.user;
+    if (_firebaseUser == null) {
+      SnackBar snackBar = SnackBar(
+        content: Text("Please try again later!"),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
   }
 
   void signOut() async {
@@ -129,10 +140,7 @@ class FirebaseAuthState extends ChangeNotifier {
   void loginWithFacebook(BuildContext context) async {
     changeFirebaseAuthStatus(FirebaseAuthStatus.progress);
 
-    if (_facebookLogin == null) {
-      _facebookLogin = FacebookLogin();
-    }
-    _facebookLogin = FacebookLogin();
+    if (_facebookLogin == null) _facebookLogin = FacebookLogin();
     final result = await _facebookLogin.logIn(['email']);
 
     switch (result.status) {
@@ -157,16 +165,20 @@ class FirebaseAuthState extends ChangeNotifier {
 
     final AuthResult authResult =
         await _firebaseAuth.signInWithCredential(credential);
+
     final FirebaseUser user = authResult.user;
     if (user == null) {
       simpleSnackbar(context, 'facebook 로그인에 실패하였습니다. 잠시 후 다시 시도해주세요.');
     } else {
-      _firebaseUser = user;
+      await userNetworkRepository.attemptCreateUser(
+          userKey: _firebaseUser.uid, email: _firebaseUser.email);
     }
     notifyListeners();
   }
 
   FirebaseAuthStatus get firebaseAuthStatus => _firebaseAuthStatus;
+
+  FirebaseUser get firebaseUser => _firebaseUser;
 }
 
 enum FirebaseAuthStatus { signout, progress, signin }
