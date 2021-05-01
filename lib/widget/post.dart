@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/constants/common_size.dart';
 import 'package:instagram/constants/screen_size.dart';
+import 'package:instagram/repo/image_network_repository.dart';
 import 'package:instagram/widget/comment.dart';
 import 'package:instagram/widget/my_progress_indicator.dart';
 import 'package:instagram/widget/rounded_avatar.dart';
@@ -98,13 +99,15 @@ class Post extends StatelessWidget {
     );
   }
 
-  CachedNetworkImage _postImage() {
+  Widget _postImage() {
+    Widget progress = MyProgressIndicator(
+      containerSize: size.width,
+    );
+
     return CachedNetworkImage(
-      imageUrl: 'https://picsum.photos/id/$index/400/400',
+      imageUrl: postModel.postImg,
       placeholder: (BuildContext context, String url) {
-        return MyProgressIndicator(
-          containerSize: size.width,
-        );
+        return progress;
       },
       imageBuilder: (BuildContext context, ImageProvider imageProvider) {
         return AspectRatio(
@@ -112,7 +115,7 @@ class Post extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
                 image:
-                    DecorationImage(image: imageProvider, fit: BoxFit.cover)),
+                DecorationImage(image: imageProvider, fit: BoxFit.cover)),
           ),
         );
       },

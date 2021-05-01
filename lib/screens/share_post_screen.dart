@@ -8,6 +8,7 @@ import 'package:instagram/constants/screen_size.dart';
 import 'package:instagram/models/firestore/post_model.dart';
 import 'package:instagram/models/firestore/user_model.dart';
 import 'package:instagram/models/user_model_state.dart';
+import 'package:instagram/repo/image_network_repository.dart';
 import 'package:instagram/widget/my_progress_indicator.dart';
 import 'package:provider/provider.dart';
 
